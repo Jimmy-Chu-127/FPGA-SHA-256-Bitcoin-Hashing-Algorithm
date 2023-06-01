@@ -1,0 +1,149 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, multicol, graphicx}
+\usepackage{enumerate, enumitem, dsfont, relsize, wrapfig, bm}
+\newcommand\pd{\partial}
+\newcommand\bd{\mathbf}
+\newcommand\curl{\nabla\times}
+\usepackage{dsfont, relsize, wrapfig, bm, float, etoolbox}
+\usepackage{wasysym}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings} %for formatting matlab code
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\usepackage{subfigure}
+\usepackage{tablefootnote}
+\usepackage{multirow}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\usepackage{listings} %for formatting matlab code
+\usepackage[T1]{fontenc}
+\usepackage{siunitx}
+\usepackage{circuitikz}
+\usepackage{bigfoot} % to allow verbatim in footnote
+
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\definecolor{vgreen}{RGB}{104,180,104}
+\definecolor{vblue}{RGB}{49,49,255}
+\definecolor{vorange}{RGB}{255,143,102}
+
+\lstdefinestyle{verilog-style}
+{
+    language=Verilog,
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{vblue},
+    identifierstyle=\color{black},
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{black},
+    commentstyle=\color{vgreen},
+    numbers=left,
+    numberstyle=\tiny\color{black},
+    numbersep=10pt,
+    tabsize=4,
+    moredelim=*[s][\colorIndex]{[}{]},
+    literate=*{:}{:}1,
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}
+}
+
+\makeatletter
+\newcommand*\@lbracket{[}
+\newcommand*\@rbracket{]}
+\newcommand*\@colon{:}
+\newcommand*\colorIndex{%
+    \edef\@temp{\the\lst@token}%
+    \ifx\@temp\@lbracket \color{black}%
+    \else\ifx\@temp\@rbracket \color{black}%
+    \else\ifx\@temp\@colon \color{black}%
+    \else \color{vorange}%
+    \fi\fi\fi
+}
+\makeatother
+
+\newcommand\cj{\overline}
+\newcommand\xhat{\bd{\hat{x}}}
+\newcommand\yhat{\bd{\hat{y}}}
+\newcommand\rp{\right)}
+\newcommand\lp{\left(}
+\newcommand\erm{\mathrm{e}}
+\newcommand\kohms{\text{ k}\Omega}
+\newcommand\muA{\text{ }\mu\text{A}}
+
+\ctikzset{bipoles/length=1cm}
+\ctikzset{resistors/scale=0.7, % smaller R
+ sources/scale=1,
+ capacitors/scale=0.7, % even smaller C
+ diodes/scale=0.6, % small diodes
+ transistors/scale=1.3} % bigger BJTs
+
+ \title{ECE 174 Project 2}
+ \author{Conner Hsu, A16665092}
+ \date{\today}
+
+\begin{document}
+
+\begin{titlepage}
+   \begin{center}
+
+       \large ECE 111: Advanced Digital Design Project \\
+       Prof. Yatish Turakhia
+       \vfill
+
+       \LARGE\textbf{Final Project Report} \\
+   \vspace{0.8cm}
+       \large June 10, 2023 \\
+
+       \vfill
+
+       Conner Hsu (A16665092) \\
+       Haozhang Chu (A16484292) \\
+       Kirtan Shah (A16227067)
+
+       \date{\today}
+
+   \end{center}
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+\section{Simplified SHA-256}
+
+\subsection{Introduction}
+
+% TODO: explain what SHA-256 is
+
+\subsection{Algorithm}
+
+% TODO: explain what SHA-256 algorithm that was implemented.
+
+\subsection{Simulation Results}
+
+% TODO: Waveform, transcript
+
+\newpage
+\section{Bitcoin Hashing}
+
+\subsection{Introduction}
+
+% TODO: explain what bitcoin hashing is
+
+\subsection{Algorithm}
+
+% TODO: explain what bitcoin hashing algorithm that was implemented.
+
+\subsection{Resource Usage}
+
+% TODO: resource usage, fitter report snapshot, fmax, timing
+
+\subsection{Simulation Results}
+
+% TODO: Waveform, transcript
+
+
+
+
+\end{document}

@@ -7,3 +7,9 @@
 */incremental_db/
 */output_files/
 */simulation/
+Report/Report.aux
+Report/Report.fdb_latexmk
+Report/Report.synctex.gz
+Report/Report.fls
+Report/Report.log
+Report/Report.toc
