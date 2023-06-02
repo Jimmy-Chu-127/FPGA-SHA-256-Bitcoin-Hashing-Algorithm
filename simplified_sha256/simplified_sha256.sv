@@ -50,6 +50,7 @@ function logic [15:0] determine_num_blocks(input logic [31:0] size);
 
 	// Student to add function implementation
 	// TODO: Conner
+	determine_num_blocks = (size+65+(512-(size+65)%512))/512;
 
 endfunction
 
@@ -63,11 +64,11 @@ function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
 		// Student to add remaning code below
 		// Refer to SHA256 discussion slides to get logic for this function
 		// TODO: Jimmothy
-		ch = 
-		t1 = 
-		S0 = 
-		maj = 
-		t2 = 
+		ch = (e & f) ^ (~e & g);
+		t1 = h + S1 + ch + k[t] + w[t];
+		S0 = rightrotate(a, 2) ^ rightrotate(a, 13) ^ rightrotate(a, 22);
+		maj = (a & b) ^ (a & c) ^ (b & c);
+		t2 = S0+maj;
 		sha256_op = {t1 + t2, a, b, c, d + t1, e, f, g};
 	end
 endfunction
@@ -111,7 +112,15 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// Initialize hash values h0 to h7 and a to h, other variables and memory we, address offset, etc
 			IDLE: begin
 				if(start) begin
-					// Student to add rest of the code  
+					h0 = 32'h6a09e667;
+					h1 = 32'hbb67ae85;
+					h2 = 32'h3c6ef372;
+					h3 = 32'ha54ff53a;
+					h4 = 32'h510e527f;
+					h5 = 32'h9b05688c;
+					h6 = 32'h1f83d9ab;
+					h7 = 32'h5be0cd19;
+					a=0; b=0; c=0; d=0; e=0; f=0; g=0; h=0;
 				end
 			end
 
@@ -119,9 +128,9 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// Get a BLOCK from the memory, COMPUTE Hash output using SHA256 function    
 			// and write back hash value back to memory
 			BLOCK: begin
-			// Fetch message in 512-bit block size
-			// For each of 512-bit block initiate hash value computation
-
+				// Fetch message in 512-bit block size
+				// For each of 512-bit block initiate hash value computation
+				
 
 
 
