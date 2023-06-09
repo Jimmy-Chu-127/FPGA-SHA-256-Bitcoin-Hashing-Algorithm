@@ -207,7 +207,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 						for(int n = 0; n < 15; n++) w[n] <= w[n+1];
 						w[15] <= wtnew();
 					end
-					{a, b, c, d, e, f, g, h} <= sha256_op(a, b, c, d, e, f, g, h, wt, i-1);
+					{a, b, c, d, e, f, g, h} <= sha256_op(a, b, c, d, e, f, g, h, wt, tstep);
 					i <= i + 1;
 				end
 				else begin
