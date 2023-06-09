@@ -20,13 +20,13 @@ logic [63:0] message_size = 640;
 logic [31:0] wt;
 logic [31:0] h0, h1, h2, h3, h4, h5, h6, h7;
 logic [31:0] a, b, c, d, e, f, g, h;
-logic [ 7:0] i, j, m, t;
+logic [ 7:0] i, j, t;
 logic [15:0] offset; // in word address
 logic [ 7:0] num_blocks, block_idx;
 logic        cur_we;
 logic [15:0] cur_addr;
 logic [31:0] cur_write_data;
-logic [511:0] memory_block;
+//logic [511:0] memory_block;
 logic [ 7:0] tstep;
 
 logic   [31:0] s1, s0;
@@ -155,13 +155,16 @@ always_ff @(posedge clk, negedge reset_n) begin
 				// For each of 512-bit block initiate hash value computation
 
 				if (block_idx==num_blocks) begin
+					cur_addr <= output_addr-1;
+					offset <= 0;
+					cur_we <= 1;
 					state <= WRITE;
 				end
 				else begin
 					if (t < 16) begin
 						if (t+16*block_idx < NUM_OF_WORDS)
 							w[t] = message[t+16*block_idx];
-						else if (t+16*block_idx < num_blocks*16) begin
+						else if (t+16*block_idx < num_blocks*16) begin //add buffer
 							if (t+16*block_idx == NUM_OF_WORDS)
 								w[t] = 32'h80000000;
 							else if (t+16*block_idx < num_blocks*16-2)
@@ -217,13 +220,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// h0 to h7 after compute stage has final computed hash value
 			// write back these h0 to h7 to memory starting from output_addr
 			WRITE: begin
-				if (j<=2) begin
-					cur_addr <= output_addr-1;
-					offset <= 0;
-					cur_we <= 1;
-					state <= WRITE;
-				end
-				else if(offset < 8) begin
+				if(offset < 8) begin
 				
 					case(offset)
 						0: cur_write_data <= h0;
@@ -242,9 +239,6 @@ always_ff @(posedge clk, negedge reset_n) begin
 					state <= IDLE;
 					cur_we <= 0;
 				end
-				
-				
-				j <= j + 1;
 			end
 		endcase
 	end
