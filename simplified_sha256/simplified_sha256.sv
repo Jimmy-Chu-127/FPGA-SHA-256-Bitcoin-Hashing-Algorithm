@@ -142,10 +142,8 @@ always_ff @(posedge clk, negedge reset_n) begin
 			end
 
 			READ: begin
-				//mem_clk = 0;
 				message[offset] = mem_read_data;
-				//mem_clk = 1;
-				cur_addr = cur_addr + 1;
+				offset = offset + 1;
 				if(offset == NUM_OF_WORDS) state = BLOCK;
 				else state = READ;
 			end
@@ -207,14 +205,14 @@ always_ff @(posedge clk, negedge reset_n) begin
 				hash[5] = h5;
 				hash[6] = h6;
 				hash[7] = h7;
-				//mem_addr = output_addr;
-				for(j = 0; j < 8; j = j + 1) begin
-					//mem_clk = 0;
-					cur_addr = output_addr + j;
-					//mem_write_data = hash[j];
+				cur_addr = output_addr;
+				offset = j;
+				if(j < 8) begin
+					cur_write_data = hash[j];
 					cur_we = 1;
-					//mem_clk = 1;
+					state = WRITE;
 				end
+				else state = IDLE;
 
 			end
 		endcase
