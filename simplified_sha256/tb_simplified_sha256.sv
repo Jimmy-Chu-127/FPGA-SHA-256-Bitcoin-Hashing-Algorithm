@@ -195,17 +195,17 @@ begin
     d = h3;
     e = h4;
     f = h5;
-    g = h6;
-    h = h7;
+   g = h6;
+   h = h7;
 
     // HASH ROUNDS
 
-    for (t = 0; t < 64; t++) begin
+   for (t = 0; t < 64; t++) begin
         {a, b, c, d, e, f, g, h} = sha256_op(a, b, c, d, e, f, g, h, w[t], t);
         // $display("%x\t%x\t%x\t%x\t%x\t%x\t%x\t%x", a, b, c, d, e, f, g, h);
-    end
+   end
 
-    // FINAL HASH FOR SECOND BLOCK
+   // FINAL HASH FOR SECOND BLOCK
 
     h0 = h0 + a;
     h1 = h1 + b;
