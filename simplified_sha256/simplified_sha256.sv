@@ -7,20 +7,20 @@ module simplified_sha256 #(parameter integer NUM_OF_WORDS = 20)(
 	input logic [31:0] mem_read_data);
 
 // FSM state variables 
-enum logic [2:0] {IDLE, READ, BLOCK, COMPUTE, WRITE} state;
+enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE} state;
 
 // NOTE : Below mentioned frame work is for reference purpose.
 // Local variables might not be complete and you might have to add more variables
 // or modify these variables. Code below is more as a reference.
 
 // Local variables
-logic [31:0] w[64];
+logic [31:0] w[16];
 logic [31:0] message[20];
 logic [63:0] message_size = 640;
 logic [31:0] wt;
 logic [31:0] h0, h1, h2, h3, h4, h5, h6, h7;
 logic [31:0] a, b, c, d, e, f, g, h;
-logic [ 7:0] i, j, t;
+logic [ 7:0] i, j;
 logic [15:0] offset; // in word address
 logic [ 7:0] num_blocks, block_idx;
 logic        cur_we;
@@ -60,6 +60,13 @@ function logic [15:0] determine_num_blocks(input logic [31:0] size);
 
 endfunction
 
+function logic [31:0] wtnew;
+  logic [31:0] s0, s1;
+  
+  s0 = rightrotate(w[1],7) ^ rightrotate(w[1],18) ^ (w[1]>>3);
+  s1 = rightrotate(w[14],17) ^ rightrotate(w[14],19) ^ (w[14]>>10);
+  wtnew = w[0] + s0 + w[9] + s1;
+endfunction 
 
 // SHA256 hash round
 function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
@@ -129,7 +136,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 					cur_we <= 0;
 					offset <= 0;
 					cur_addr <= message_addr;
-					i <= 0; j <= 0; t <= 0;
+					i <= 0; j <= 0;
 					block_idx <= 0;
 					state <= READ;
 				end
@@ -161,34 +168,30 @@ always_ff @(posedge clk, negedge reset_n) begin
 					state <= WRITE;
 				end
 				else begin
-					if (t < 16) begin
-						if (t+16*block_idx < NUM_OF_WORDS)
-							w[t] = message[t+16*block_idx];
-						else if (t+16*block_idx < num_blocks*16) begin //add buffer
-							if (t+16*block_idx == NUM_OF_WORDS)
-								w[t] = 32'h80000000;
-							else if (t+16*block_idx < num_blocks*16-2)
-								w[t] = 32'h00000000;
-							else if (t+16*block_idx == num_blocks*16-2) 
-								w[t] <= message_size[63:32];
-							else
-								w[t] <= message_size[31:0];
-						end
-						
-					end else if (t < 64) begin
-						s0 = rightrotate(w[t-15], 7) ^ rightrotate(w[t-15], 18) ^ (w[t-15] >> 3);
-						s1 = rightrotate(w[t-2], 17) ^ rightrotate(w[t-2], 19) ^ (w[t-2] >> 10);
-						w[t] = w[t-16] + s0 + w[t-7] + s1;
-					end else begin
-						{a, b, c, d, e, f, g, h} <= {h0, h1, h2, h3, h4, h5, h6, h7};
-						state <= COMPUTE;
+					for(int t = 0; t < 16; t = t + 1) begin
+							if (t+16*block_idx < NUM_OF_WORDS)
+								w[t] <= message[t+16*block_idx];
+							else if (t+16*block_idx < num_blocks*16) begin //add buffer
+								if (t+16*block_idx == NUM_OF_WORDS)
+									w[t] <= 32'h80000000;
+								else if (t+16*block_idx < num_blocks*16-2)
+									w[t] <= 32'h00000000;
+								else if (t+16*block_idx == num_blocks*16-2) 
+									w[t] <= message_size[63:32];
+								else
+									w[t] <= message_size[31:0];
+							end
 					end
-					t <= t + 1;
-				end
-
+					{a, b, c, d, e, f, g, h} <= {h0, h1, h2, h3, h4, h5, h6, h7};
+					state <= PRECOMP;
+				end				
 				
-				
-				
+			end
+			
+			PRECOMP: begin
+				wt <= w[0];
+				i <= 1;
+				state <= COMPUTE;
 			end
 
 			// For each block compute hash function
@@ -197,8 +200,14 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// move to WRITE stage
 			COMPUTE: begin
 				// 64 processing rounds steps for 512-bit block 
-				if (i < 64) begin
-					{a, b, c, d, e, f, g, h} <= sha256_op(a, b, c, d, e, f, g, h, w[i], i);
+				if (i < 65) begin
+					if (i < 16) wt <= w[i];
+					else begin
+						wt <= wtnew();
+						for(int n = 0; n < 15; n++) w[n] <= w[n+1];
+						w[15] <= wtnew();
+					end
+					{a, b, c, d, e, f, g, h} <= sha256_op(a, b, c, d, e, f, g, h, wt, i-1);
 					i <= i + 1;
 				end
 				else begin
@@ -210,7 +219,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 					h5 <= h5 + f;
 					h6 <= h6 + g;
 					h7 <= h7 + h;
-					t <= 0; i<=0;
+					i<=0;
 					block_idx <= block_idx + 1;
 					state <= BLOCK;
 				end
