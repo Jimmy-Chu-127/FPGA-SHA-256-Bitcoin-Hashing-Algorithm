@@ -67,7 +67,6 @@ endfunction
 
 // SHA256 hash round
 function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, 
-	input logic[31:0] w[64],
 		input logic [7:0] t);
 	logic [31:0] S1, S0, ch, maj, t1, t2; // internal signals
 	begin
@@ -179,7 +178,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 			COMPUTE: begin
 				// 64 processing rounds steps for 512-bit block 
 				if (i <= 64) begin
-					{a, b, c, d, e, f, g, h} = sha256_op(a, b, c, d, e, f, g, h, w, tstep);
+					{a, b, c, d, e, f, g, h} = sha256_op(a, b, c, d, e, f, g, h, tstep);
 					h0 = h0 + a;
 					h1 = h1 + b;
 					h2 = h2 + c;
@@ -188,6 +187,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 					h5 = h5 + f;
 					h6 = h6 + g;
 					h7 = h7 + h;
+					i = i + 1;
 				end
 				else if(block_idx == num_blocks) state = WRITE;
 				else state = BLOCK;
@@ -211,6 +211,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 					cur_write_data = hash[j];
 					cur_we = 1;
 					state = WRITE;
+					j = j + 1;
 				end
 				else state = IDLE;
 
