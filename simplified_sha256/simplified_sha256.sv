@@ -132,7 +132,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 					h6 = 32'h1f83d9ab;
 					h7 = 32'h5be0cd19;
 					a=0; b=0; c=0; d=0; e=0; f=0; g=0; h=0;
-					mem_we = 0;
+					cur_we = 0;
 					offset = 0;
 					cur_addr = message_addr;
 					i = 0; j = 0;
@@ -142,10 +142,9 @@ always_ff @(posedge clk, negedge reset_n) begin
 			end
 
 			READ: begin
-				mem_addr = cur_addr;
-				mem_clk = 0;
+				//mem_clk = 0;
 				message[offset] = mem_read_data;
-				mem_clk = 1;
+				//mem_clk = 1;
 				cur_addr = cur_addr + 1;
 				if(offset == NUM_OF_WORDS) state = BLOCK;
 				else state = READ;
@@ -157,12 +156,14 @@ always_ff @(posedge clk, negedge reset_n) begin
 			BLOCK: begin
 				// Fetch message in 512-bit block size
 				// For each of 512-bit block initiate hash value computation
+				integer t;
+				logic[31:0] s0, s1;
 				for (t = 0; t < 64; t++) begin
 					if (t < 16) begin
 						if (block_idx == 0) w[t] = message[t];
 						else w[t] = last_block[t*32+:32];
 					end else begin
-						so = rightrotate(w[t-15], 7) ^ rightrotate(w[t-15], 18) ^ (w[t-15] >> 3);
+						s0 = rightrotate(w[t-15], 7) ^ rightrotate(w[t-15], 18) ^ (w[t-15] >> 3);
 						s1 = rightrotate(w[t-2], 17) ^ rightrotate(w[t-2], 19) ^ (w[t-2] >> 10);
 						w[t] = w[t-16] + s0 + w[t-7] + s1;
 					end
@@ -198,14 +199,21 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// h0 to h7 after compute stage has final computed hash value
 			// write back these h0 to h7 to memory starting from output_addr
 			WRITE: begin
-				hash = {h0, h1, h2, h3, h4, h5, h6, h7};
-				mem_addr = output_addr;
+				hash[0] = h0;
+				hash[1] = h1;
+				hash[2] = h2;
+				hash[3] = h3;
+				hash[4] = h4;
+				hash[5] = h5;
+				hash[6] = h6;
+				hash[7] = h7;
+				//mem_addr = output_addr;
 				for(j = 0; j < 8; j = j + 1) begin
-					mem_clk = 0;
-					mem_addr = output_addr + j;
-					mem_write_data = hash[j];
-					mem_we = 1;
-					mem_clk = 1;
+					//mem_clk = 0;
+					cur_addr = output_addr + j;
+					//mem_write_data = hash[j];
+					cur_we = 1;
+					//mem_clk = 1;
 				end
 
 			end
