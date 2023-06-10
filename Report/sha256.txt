@@ -43,5 +43,5 @@
 #
 # ***************************
 #
-# ** Note: $stop    : E:/Desktop/ucsd stuff/ECE 111/ECE111_Collaboration/simplified_sha256/tb_simplified_sha256.sv(262)
+# ** Note: $stop    : .../simplified_sha256/tb_simplified_sha256.sv(262)
 #    Time: 3410 ps  Iteration: 2  Instance: /tb_simplified_sha256

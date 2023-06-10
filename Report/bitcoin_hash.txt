@@ -50,5 +50,5 @@
 #
 # ***************************
 #
-# ** Note: $stop    : E:/Desktop/ucsd stuff/ECE 111/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv(338)
+# ** Note: $stop    : .../bitcoin_hash/tb_bitcoin_hash.sv(338)
 #    Time: 5010 ps  Iteration: 2  Instance: /tb_bitcoin_hash

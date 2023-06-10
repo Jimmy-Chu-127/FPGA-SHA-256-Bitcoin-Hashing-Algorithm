@@ -184,19 +184,16 @@ Once all 64 words blocks are processed in the COMPUTE state, the algorithm will 
 
 In the WRITE state, the algorithm will write the hash values, $H_0, H_1, H_2, H_3, H_4, H_5, H_6, H_7$ to memory. Since the memory module being used can only write 32 bits to memory per clock cycle, it will take at least 8 clock cycles to write the hash values to memory.
 
-\subsubsection{Finer details of reading/writing from memory}
+\subsection{Finer details of reading/writing from memory}
 
 The SHA-256 uses an external memory module to read in the input message and write out the output hash. This memory module can
 
-\subsubsection{Optimizations}
+\subsection{Optimizations}
 
 % TODO discuss pipelining, precomp, word expansion stuff.
 
 
 
-\subsection{Simulation Results}
-
-\lstinputlisting[frame=single, basicstyle=\small\ttfamily,tabsize=4]{sha256.txt}
 
 % TODO: Waveform, transcript
 
@@ -225,10 +222,23 @@ We have designed one module to process the first 512-bit block that only contain
 
 % TODO: resource usage, fitter report snapshot, fmax, timing
 
-\subsection{Simulation Results}
 
-% TODO: Waveform, transcript
 
+\newpage
+\section{Simulation Results}
+
+\subsection{SHA-256 Transcript}
+
+\lstinputlisting[frame=single, basicstyle=\small\ttfamily,tabsize=4]{sha256.txt}
+
+
+\subsection{SHA-256 Waveforms}
+
+\newpage
+\subsection{Bitcoin Hashing Transcript}
+\lstinputlisting[frame=single, basicstyle=\small\ttfamily,tabsize=4]{bitcoin_hash.txt}
+
+\subsection{Bitcoin Hashing Waveforms}
 
 \label{LastPage}
 
