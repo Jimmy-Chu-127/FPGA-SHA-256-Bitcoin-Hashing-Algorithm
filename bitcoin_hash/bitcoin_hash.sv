@@ -7,10 +7,22 @@ module bitcoin_hash (
  input logic [31:0] mem_read_data);
 
 parameter num_nonces = 16;
+parameter num_words  = 20;
 
-enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, PHASE3} state;
+
+enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, PHASE3, WRITE} state;
+
+logic [31:0] message[16][16];
+logic [31:0] result[8][16];
+logic        start1;
+logic        done1;
+logic        cycle;
+
 logic [31:0] hout[num_nonces];
-logic			 cur
+logic			 cur_we;
+logic [15:0] offset;
+logic [15:0] cur_addr;
+logic [31:0] cur_write_data;
 
 // SHA256 K constants
 parameter int k[64] = '{
@@ -24,6 +36,29 @@ parameter int k[64] = '{
 	32'h748f82ee,32'h78a5636f,32'h84c87814,32'h8cc70208,32'h90befffa,32'ha4506ceb,32'hbef9a3f7,32'hc67178f2
 };
 
+
+// Memory stuff
+assign mem_clk = clk;
+assign mem_addr = cur_addr + offset;
+assign mem_we = cur_we;
+assign mem_write_data = cur_write_data;
+
+
+// One round sha initializations 16 instance
+genvar q;
+generate
+	for(q = 0; q < NUM_NONCES; q++) begin: generate_sha256_blocks
+		sha256_block block(
+			.clk(clk),
+			.reset_n(reset_n),
+			.start(),
+			.message(message[q]),
+			.result(result[q]),
+			.done(done)
+		);
+endgenerate
+
+
 // Student to add rest of the code here
 // SHA256 FSM
 always_ff@(posedge clk, negedge reset_n) begin
@@ -34,34 +69,113 @@ always_ff@(posedge clk, negedge reset_n) begin
 	
 	else begin
 		case(state)
-			// Phase for initialization
+			// state for initialization
 			IDLE: begin
-			
+				if(start) begin
+					cycle <= 0;
+					offset <= 0;
+					cur_we <= 0;
+					
+					state <= READ;
+				end
+				else begin
+					state <= IDLE;
+				end
 			end
 			
+			// state for reading in the variables
 			READ: begin
-			
+				if(cycle == 0) begin
+					for(i = 0; i < num_words; i++) begin
+						message[ 0][i] <= mem_read_data;
+						message[ 1][i] <= mem_read_data;
+						message[ 2][i] <= mem_read_data;
+						message[ 3][i] <= mem_read_data;
+						message[ 4][i] <= mem_read_data;
+						message[ 5][i] <= mem_read_data;
+						message[ 6][i] <= mem_read_data;
+						message[ 7][i] <= mem_read_data;
+						message[ 8][i] <= mem_read_data;
+						message[ 9][i] <= mem_read_data;
+						message[10][i] <= mem_read_data;
+						message[11][i] <= mem_read_data;
+						message[12][i] <= mem_read_data;
+						message[13][i] <= mem_read_data;
+						message[14][i] <= mem_read_data;
+						message[15][i] <= mem_read_date;
+					end
+				end
+				else if(cycle == 1) begin
+					for(i = 0; i < )
+				end
+				else begin
+				
+				end
 			end
 			
+			// state for phase 1 processing
 			PHASE1: begin
+				
 			
+				cycle <= cycle + 1;
+				state <= READ;
 			end
 			
+			// state for phase 2 processing
 			PHASE2: begin
+				
 			
+				cycle <= cycle + 1;
+				state <= READ;
 			end
 			
+			// state for phase 3 processing
 			PHASE3: begin
-			
+				
+				state <= WRITE;
 			end
 			
+			// state for writing the hash to memory
+			WRITE: begin
+			
+				state <= IDLE;
+			end
 		endcase
 	end
 end
 
 
-// One round sha initializations 16 instance
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Generate done when SHA256 computation has finished and moved to IDLE
+assign done = (state == IDLE);
 
 endmodule
