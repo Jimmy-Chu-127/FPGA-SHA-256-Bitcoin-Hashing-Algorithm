@@ -8,9 +8,29 @@ module bitcoin_hash (
 
 parameter num_nonces = 16;
 
-enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, PHASE3} state;
-logic [31:0] hout[num_nonces];
-logic			 cur
+enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, WRITE} state;
+//logic [31:0] hout[num_nonces];
+logic [31:0] message[16]; 
+logic [31:0] message_tail[num_nonces][4];
+logic [31:0] result_phase1[8];
+logic [31:0] result_phase2[num_nonces][8];
+
+logic        cur_we;
+logic [15:0] cur_addr;
+logic [31:0] cur_write_data;
+logic [7:0]  offset;
+
+assign mem_clk = clk;
+assign mem_addr = cur_addr + offset;
+assign mem_we = cur_we;
+assign mem_write_data = cur_write_data;
+
+logic 		 rstn_phase1 = 1;
+logic [num_nonces-1:0] rstn_phase2 = ~0;
+logic 		 start_phase1 = 0;
+logic [num_nonces-1:0] start_phase2 = 0;
+logic 		 done_phase1;
+logic [num_nonces-1:0] done_phase2;
 
 // SHA256 K constants
 parameter int k[64] = '{
@@ -24,6 +44,16 @@ parameter int k[64] = '{
 	32'h748f82ee,32'h78a5636f,32'h84c87814,32'h8cc70208,32'h90befffa,32'ha4506ceb,32'hbef9a3f7,32'hc67178f2
 };
 
+onephase_sha256 phase1(.clk, .reset_n(rstn_phase1), .start(start_phase1), .message, .result(result_phase1), .done(done_phase1));
+
+genvar i;
+generate
+	for(i = 0; i < num_nonces; i = i + 1) begin: phase2_loop
+		twophase_sha256 phase2(.clk, .reset_n(rstn_phase2[i]), .start(start_phase2[i]), .inh(result_phase1), .outs(result_phase2[i]), .message(message_tail[i]), .done(done_phase2[i]));
+	end : phase2_loop
+endgenerate
+
+
 // Student to add rest of the code here
 // SHA256 FSM
 always_ff@(posedge clk, negedge reset_n) begin
@@ -36,32 +66,75 @@ always_ff@(posedge clk, negedge reset_n) begin
 		case(state)
 			// Phase for initialization
 			IDLE: begin
-			
+				if(start) begin
+					cur_we <= 0;
+					offset <= 0;
+					cur_addr <= message_addr;
+					state <= READ;
+					rstn_phase1 <= 0;
+					rstn_phase2 <= 0;
+					for(int k = 0; k < num_nonces; k++) begin
+						message_tail[k][3] <= k; // nonce
+					end
+				end
 			end
 			
 			READ: begin
-			
+				if (offset <= 16)
+					message[offset-1] <= mem_read_data;
+				else if(offset <= 19) begin // 4 cycles pipelineable 
+					for(int k = 0; k < num_nonces; k++) begin
+						message_tail[k][offset-17] <= mem_read_data;
+					end
+				end
+					
+				if(offset == 19) begin
+					rstn_phase1 <= 'b1;
+					rstn_phase2 <= ~0;
+					start_phase1 <= 'b1;
+					state <= PHASE1;
+				end
+				else begin
+					state <= READ;
+					offset <= offset + 1;
+				end
 			end
 			
 			PHASE1: begin
-			
+				if(done_phase1) begin
+					start_phase2 <= ~0;
+					state <= PHASE2;
+				end
+				start_phase1 <= 0;
+//				else state <= PHASE1;
 			end
 			
 			PHASE2: begin
-			
+				if(&done_phase2) begin
+					cur_addr <= output_addr - 1;
+					offset <= 0;
+					cur_we <= 1;
+					state <= WRITE;
+				end
+				start_phase2 <= 0;
 			end
 			
-			PHASE3: begin
-			
+			WRITE: begin
+				if(offset < 16) begin
+					cur_write_data <= result_phase2[offset][0];
+					offset <= offset + 1;
+					state <= WRITE;
+				end
+				else begin
+					state <= IDLE;
+					cur_we <= 0;
+				end
 			end
 			
 		endcase
 	end
 end
 
-
-// One round sha initializations 16 instance
-
-
+assign done = (state == IDLE);
 
 endmodule

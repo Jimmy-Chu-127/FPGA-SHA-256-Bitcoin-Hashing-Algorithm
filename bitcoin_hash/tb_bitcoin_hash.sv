@@ -179,6 +179,8 @@ begin
     fh5 = fh5 + f;
     fh6 = fh6 + g;
     fh7 = fh7 + h;
+	 
+	 h0[n] = fh0;
 
 // 2. COMPUTE SECOND BLOCK FOR FIRST HASH FOR EACH NONCE
 
@@ -236,6 +238,7 @@ begin
         h7[n] = h7[n] + h;
     end
 
+	 
 // 3. COMPUTE SECOND HASH FOR EACH NONCE
 
     for (n = 0; n < NUM_NONCES; n++) begin
@@ -300,6 +303,7 @@ begin
         h6[n] = h6[n] + g;
         h7[n] = h7[n] + h;
     end
+	 
 
 // WAIT UNTIL EVERY IS DONE, THEN DISPLAY HASH RESULTS
 
