@@ -8,9 +8,11 @@ module bitcoin_hash (
 
 parameter num_nonces = 16;
 
-logic [4:0] state;
+enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, PHASE3} state;
 logic [31:0] hout[num_nonces];
+logic			 cur
 
+// SHA256 K constants
 parameter int k[64] = '{
 	32'h428a2f98,32'h71374491,32'hb5c0fbcf,32'he9b5dba5,32'h3956c25b,32'h59f111f1,32'h923f82a4,32'hab1c5ed5,
 	32'hd807aa98,32'h12835b01,32'h243185be,32'h550c7dc3,32'h72be5d74,32'h80deb1fe,32'h9bdc06a7,32'hc19bf174,
@@ -23,9 +25,42 @@ parameter int k[64] = '{
 };
 
 // Student to add rest of the code here
+// SHA256 FSM
+always_ff@(posedge clk, negedge reset_n) begin
+	if(!reset_n) begin
+		cur_we <= 1'b0;
+		state <= IDLE;
+	end
+	
+	else begin
+		case(state)
+			// Phase for initialization
+			IDLE: begin
+			
+			end
+			
+			READ: begin
+			
+			end
+			
+			PHASE1: begin
+			
+			end
+			
+			PHASE2: begin
+			
+			end
+			
+			PHASE3: begin
+			
+			end
+			
+		endcase
+	end
+end
 
 
-
+// One round sha initializations 16 instance
 
 
 
