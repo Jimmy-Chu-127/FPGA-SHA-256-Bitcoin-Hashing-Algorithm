@@ -6,7 +6,7 @@ module twophase_sha256 (
 	output logic done);
 
 // FSM state variables 
-enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE} state;
+enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE, DONE} state;
 
 // NOTE : Below mentioned frame work is for reference purpose.
 // Local variables might not be complete and you might have to add more variables
@@ -185,11 +185,15 @@ always_ff @(posedge clk, negedge reset_n) begin
 					i<=0;
 					block_idx <= block_idx + 1;
 					if(block_idx == num_blocks - 1) state <= WRITE;
+					else state <= BLOCK;
 				end
 			end
 			WRITE: begin
 				outs = '{h0, h1, h2, h3, h4, h5, h6, h7};
-				state <= IDLE;
+				state <= DONE;
+			end
+			DONE: begin
+				state <= DONE;
 			end
 
 		endcase
@@ -197,6 +201,6 @@ always_ff @(posedge clk, negedge reset_n) begin
 end
 
 // Generate done when SHA256 hash computation has finished and moved to IDLE state
-assign done = (state == IDLE);
+assign done = (state == DONE);
 
 endmodule

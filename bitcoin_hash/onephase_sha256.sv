@@ -18,7 +18,7 @@ parameter int k[64] = '{
 };	
 
 // FSM state variables
-enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE} state;
+enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE, DONE} state;
 
 // Local variables
 logic [31:0] w[16];
@@ -156,13 +156,17 @@ always_ff @(posedge clk, negedge reset_n) begin
 				result[6] <= h6;
 				result[7] <= h7;
 				
-				state <= IDLE;
+				state <= DONE;
+			end
+			
+			DONE: begin
+				state <= DONE;
 			end
 		endcase
 	end
 end
 
 // Generate done when SHA256 hash computation is finished and moved to IDLE state
-assign done = (state == IDLE);
+assign done = (state == DONE);
 
 endmodule
