@@ -8,15 +8,21 @@ module bitcoin_hash (
 
 parameter num_nonces = 16;
 parameter num_words  = 20;
+logic [63:0] message_size = 640;
 
 
-enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, PHASE3, WRITE} state;
+enum logic [4:0] {IDLE, READ, PREP1, PREP2, PREP3, PHASE1, PHASE2, PHASE3, WRITE, DONE} state;
 
-logic [31:0] message[16][16];
-logic [31:0] result[8][16];
+logic [31:0] message1[32];                          // Double check for pack unpacked array
+logic [31:0] message2[16][16];
+logic [31:0] result[16][8];
+
 logic        start1;
-logic        done1;
-logic        cycle;
+logic			 done1;
+logic			 round2;
+
+logic        done;
+logic        i, j;
 
 logic [31:0] hout[num_nonces];
 logic			 cur_we;
@@ -51,10 +57,12 @@ generate
 		sha256_block block(
 			.clk(clk),
 			.reset_n(reset_n),
-			.start(),
-			.message(message[q]),
+			.start(start1),
+			.message(message2[q]),
+			.hash_val(result[q]),
+			.round2(round2),
 			.result(result[q]),
-			.done(done)
+			.done(done1)
 		);
 endgenerate
 
@@ -74,6 +82,7 @@ always_ff@(posedge clk, negedge reset_n) begin
 				if(start) begin
 					cycle <= 0;
 					offset <= 0;
+					cur_addr <= message_addr;
 					cur_we <= 0;
 					
 					state <= READ;
@@ -84,49 +93,101 @@ always_ff@(posedge clk, negedge reset_n) begin
 			end
 			
 			// state for reading in the variables
+			// the nonce will be changed in prep states
 			READ: begin
-				if(cycle == 0) begin
-					for(i = 0; i < num_words; i++) begin
-						message[ 0][i] <= mem_read_data;
-						message[ 1][i] <= mem_read_data;
-						message[ 2][i] <= mem_read_data;
-						message[ 3][i] <= mem_read_data;
-						message[ 4][i] <= mem_read_data;
-						message[ 5][i] <= mem_read_data;
-						message[ 6][i] <= mem_read_data;
-						message[ 7][i] <= mem_read_data;
-						message[ 8][i] <= mem_read_data;
-						message[ 9][i] <= mem_read_data;
-						message[10][i] <= mem_read_data;
-						message[11][i] <= mem_read_data;
-						message[12][i] <= mem_read_data;
-						message[13][i] <= mem_read_data;
-						message[14][i] <= mem_read_data;
-						message[15][i] <= mem_read_date;
-					end
+				if(offset < num_words-1) begin
+					message[offset-1] <= mem_read_data;
 				end
-				else if(cycle == 1) begin
-					for(i = 0; i < )
+				else if(offset == 20) begin
+					message[offset-1] <= 32'h80000000;
+				end
+				else if(offset == 31) begin
+					message[offset-1] <= message_size;
+					state  <= PREP1;
+					offset <= 0;
 				end
 				else begin
-				
+					message[offset-1] <= 32'h00000000;
 				end
+				offset <= offset + 1;
+			end
+			
+			// state for preping the data for phase 1
+			PREP1: begin
+				for(i = 0; i < 16; i++) begin
+					for(j = 0; j < 16; j++) begin
+						message2[i][j] <= message1[j];
+					end
+				end
+				state <= PHASE1;
+			end
+			
+			// state for preping the data for phase 2
+			PREP2: begin
+				for(i = 0; i < 16; i++) begin
+					for(j = 0; j < 3; j++) begin
+						message2[i][j] <= message1[j+16];
+					end
+				end
+				
+				message2[ 0][3] <= 32'd0;
+				message2[ 1][3] <= 32'd1;
+				message2[ 2][3] <= 32'd2;
+				message2[ 3][3] <= 32'd3;
+				message2[ 4][3] <= 32'd4;
+				message2[ 5][3] <= 32'd5;
+				message2[ 6][3] <= 32'd6;
+				message2[ 7][3] <= 32'd7;
+				message2[ 8][3] <= 32'd8;
+				message2[ 9][3] <= 32'd9;
+				message2[10][3] <= 32'd10;
+				message2[11][3] <= 32'd11;
+				message2[12][3] <= 32'd12;
+				message2[13][3] <= 32'd13;
+				message2[14][3] <= 32'd14;
+				message2[15][3] <= 32'd15;
+				
+				for(i = 0; i < 16; i++) begin
+					for(j = 4; j < 16; j++) begin
+						message2[i][j] <= message1[j+16];
+					end
+				end
+				
+				state  <= PHASE2;
+				round2 <= 1;
+			end
+			
+			// state for preping the data for phase 3
+			PREP3: begin
+			
 			end
 			
 			// state for phase 1 processing
 			PHASE1: begin
-				
+				start1 <= 1; 
 			
-				cycle <= cycle + 1;
-				state <= READ;
+				if(done1) begin
+					state  <= PREP2;
+					start1 <= 0;
+					
+					
+				end
+				else begin
+					state  <= PHASE1;
+				end
 			end
 			
 			// state for phase 2 processing
 			PHASE2: begin
+				start1 <= 1;
 				
-			
-				cycle <= cycle + 1;
-				state <= READ;
+				if(done1) begin
+					state  <= PREP3;
+					start1 <= 0;
+				end
+				else begin
+					state  < PHASE2;
+				end
 			end
 			
 			// state for phase 3 processing
@@ -138,6 +199,11 @@ always_ff@(posedge clk, negedge reset_n) begin
 			// state for writing the hash to memory
 			WRITE: begin
 			
+				state <= DONE;
+			end
+			
+			// state to show the sha is done with operations
+			DONE: begin
 				state <= IDLE;
 			end
 		endcase

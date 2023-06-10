@@ -2,6 +2,8 @@
 module simplified_sha256 #(parameter integer NUM_OF_WORDs = 16)(
 	input  logic clk, reset_n, start,
 	input  logic [31:0] message[16],
+	input	 logic [31:0][7:0] hash_val,
+	input  logic        round2;
 	output logic [31:0] result[8],
 	output logic done);
 
@@ -18,7 +20,7 @@ parameter int k[64] = '{
 };	
 
 // FSM state variables
-enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE} state;
+enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE, DONE} state;
 
 // Local variables
 logic [31:0] w[16];
@@ -75,18 +77,30 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// initial state to initiate varibles
 			IDLE: begin
 				if(state) begin
-					h0 <= 32'h6a09e667;
-					h1 <= 32'hbb67ae85;
-					h2 <= 32'h3c6ef372;
-					h3 <= 32'ha54ff53a;
-					h4 <= 32'h510e527f;
-					h5 <= 32'h9b05688c;
-					h6 <= 32'h1f83d9ab;
-					h7 <= 32'h5be0cd19;
-					
+					// different initial hash constant for the second round
+					if(round2) begin
+						h0 <= hash_val[0];
+						h1 <= hash_val[1];
+						h2 <= hash_val[2];
+						h3 <= hash_val[3];
+						h4 <= hash_val[4];
+						h5 <= hash_val[5];
+						h6 <= hash_val[6];
+						h7 <= hash_val[7];
+					end
+					// original hash contant
+					else begin
+						h0 <= 32'h6a09e667;
+						h1 <= 32'hbb67ae85;
+						h2 <= 32'h3c6ef372;
+						h3 <= 32'ha54ff53a;
+						h4 <= 32'h510e527f;
+						h5 <= 32'h9b05688c;
+						h6 <= 32'h1f83d9ab;
+						h7 <= 32'h5be0cd19;
+					end
 					offset <= 0;
 					i <= 0; j <= 0;
-					
 					state <= READ;
 				end
 			end
@@ -157,6 +171,11 @@ always_ff @(posedge clk, negedge reset_n) begin
 				result[6] <= h6;
 				result[7] <= h7;
 				
+				state <= DONE;
+			end
+			
+			// state to show the sha is done with operations
+			DONE: begin
 				state <= IDLE;
 			end
 		endcase
@@ -164,6 +183,6 @@ always_ff @(posedge clk, negedge reset_n) begin
 end
 
 // Generate done when SHA256 hash computation is finished and moved to IDLE state
-assign done = (state == IDLE);
+assign done = (state == DONE);
 
 endmodule
