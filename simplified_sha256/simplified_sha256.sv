@@ -29,7 +29,7 @@ logic [31:0] cur_write_data;
 //logic [511:0] memory_block;
 logic [ 7:0] tstep;
 
-logic   [31:0] s1, s0;
+logic   [31:0] s1, s0;     //Isn't this done locally already?
 
 // SHA256 K constants
 parameter int k[0:63] = '{
@@ -74,7 +74,7 @@ function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
 	logic [31:0] S1, S0, ch, maj, t1, t2; // internal signals
 	begin
 		S1 = rightrotate(e, 6) ^ rightrotate(e, 11) ^ rightrotate(e, 25);
-		// Student to add remaning code below
+		// Student to add remaining code below
 		// Refer to SHA256 discussion slides to get logic for this function
 		// TODO: Jimmothy
 		ch = (e & f) ^ ((~e) & g);
@@ -105,8 +105,8 @@ assign mem_write_data = cur_write_data;
 // (0000 1111 ffff 2222 3333 4444 6666 7777) | (8888 0000 0000 0000 0000 0000 0000 0000)
 // final value after right rotate = 8888 1111 ffff 2222 3333 4444 6666 7777
 // Right rotation function
-function logic [31:0] rightrotate(input logic [31:0] x,
-		 input logic [ 7:0] r);
+function logic [31:0] rightrotate(	input logic [31:0] x,
+												input logic [ 7:0] r);
 	rightrotate = (x >> r) | (x << (32 - r));
 endfunction
 
