@@ -79,6 +79,15 @@
  diodes/scale=0.6, % small diodes
  transistors/scale=1.3} % bigger BJTs
 
+ \usepackage{fancyhdr}
+ \pagestyle{fancy}
+ \fancyhead[L,C]{}
+ \fancyhead[L]{\textbf{\rightmark}}
+ \fancyfoot[R]{ECE 111 PROJECT --- Spring 2023}
+ \fancyfoot[C]{}
+ \fancyfoot[L]{Page \thepage ~of \pageref{LastPage}}
+ \renewcommand{\headrulewidth}{0.4pt}
+ \renewcommand{\footrulewidth}{2pt}
 
 \begin{document}
 
@@ -89,7 +98,7 @@
        Prof. Yatish Turakhia
        \vfill
 
-       \LARGE\textbf{Final Project Report} \\
+       \LARGE\textbf{SHA-256 and Bitcoin Hashing Report} \\
    \vspace{0.8cm}
        \large June 10, 2023 \\
 
@@ -123,7 +132,7 @@ Hash functions are powerful tools that play a vital role in various areas of com
 \end{itemize}
 For cryptographic applications, avalance effect, noninvertibility and injectiveness are very important properties. These properties all together make hash functions invaluable for tasks such as data retrieval, data integrity verification, password storage, and digital signatures. By producing unique and irreversible hash values, hash functions enable efficient data indexing, quick data comparison, and secure authentication. Whether it's ensuring data integrity, enhancing search performance, or providing robust security measures, hash functions are essential components in modern computing systems.
 
-In this report, we explore the implementation of a particular cryptographic hash function called Secure Hashing Algorithm - 256 or SHA-256 for short. We will build this using System Verilog and use the Arria-II FPGA to realize the implementation on hardware.
+In this report, we explore the implementation of a particular hash function called Secure Hashing Algorithm - 256 or SHA-256 for short. This hash function takes in any length input and outputs a 256-bit digest/hash value. We will build this using System Verilog and use the Arria-II FPGA to realize the implementation on hardware.
 % TODO:
 
 \subsection{Algorithm}
@@ -134,16 +143,56 @@ Before running the SHA-256 algorithm, the input message must be broken up into b
 
 For example, suppose the message is 640 bits long. This means that the first block will contain the first 512 bits of the message, and the second block will contain the last 128 bits of the message. Next, a 1 will be appended to the last block making it 129 bits long. Then, 319 zeros will be appended to make the last block now 448 bits long. Last, 64 bits will be appended to store the message size and the last block will not be 512 bits long.
 
-As another example, suppose that the input message divides evenly into 512 bit blocks meaning that the message size is some multiple of 512. In this case, the final block will have a 1 in the beginning, then 448 zeros, then end off 64 bits for the message size. The number of zeros is increased to 448 to ensure that this final block is 512 bits long.
+As another example, suppose that the input message divides evenly into 512-bit blocks meaning that the message size is some multiple of 512. In this case, the final block will have a 1 in the beginning, then 448 zeros, then end off 64 bits for the message size. The number of zeros is increased to 448 to ensure that this final block is 512 bits long.
 
-From here, the state diagram of the SHA-256 can be described.
+Throughout the SHA-256 algorithm, a set of hash values $H_0, H_1, H_2, H_3, H_4, H_5, H_6, H_7$ are updated after each block in the input message is processed. These variables are each 32 bits long and thus when put together form the 256-bit output digest.
+
+From here, the states of the SHA-256 are described as follows. The algorithm begins in the IDLE state. In this state, the algorithm waits for a start signal to begin computation. Once a start signal is recieved, it initializes iterative variables, the address to read in the input message, and the hash values, $H_i$ for $0 \leq i \leq 7$. Once this is done, the algorithm will move into the READ state in the next clock cycle.
+
+In the READ state, the SHA-256 algorithm will read data from the memory read in input of the module. Since the memory module being used can only read out 32 bits at a time, it takes multiple clock cycles before the entire input message will be read in. In our implementation, we designed the SHA-256 to take a fixed input message length of 640 bits. This means that the READ state will use at least 20 clock cycles to read in $20\cdot 32$ bits. Once the entire input message is read in, the algorithm moves to the BLOCK state in the next clock cycle.
+
+In the BLOCK state, the algorithm will separate the input message into 512-bit blocks in the same process as described earlier. For the 640-bit input message, 512 of the bits will be placed in the first block, and the last 128 bits will be placed in the second block. Some logic is needed to fill the remaining 384 bits of the second block with the zeros padding and input message size. A for-loop is used to initialize the first 10 blocks of 32 bits with $10\dots0$ and then the last two blocks of 32 bits are set to the input message size. Additionally, before moving into the next state, another set of variables, $a,b,c,d,e,f,g,h$ are initialized to the hash values from earlier. Once this is completed, the algorithm moves to the COMPUTE state in the next clock cycle. When the algorithm is in the BLOCK state for the first time, it will send the first 512 bits of the input message to the COMPUTE state. When the algorithm is in the BLOCK state of the second time, it will send the last 128 bits of the input message plus the padding and message size to the COMPUTE state.
+
+In the COMPUTE state, the algorithm processes the 512-bit block. The algorithm will break these 512 bits into 16 blocks of 32 bits and then use a process called word expansion to expand this into 64 blocks of 32 bits. Each of these blocks of 32 bits are processed sequentially over 64 clock cycles. A 32-bit block along with the $a,b,c,d,e,f,g,h$ values are passed to a SHA-256 hash round function each clock cycle.
+
+\begin{lstlisting}[style=verilog-style]
+// SHA256 hash round
+function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
+    input logic [7:0] t);
+  logic [31:0] S1, S0, ch, maj, t1, t2; // internal signals
+  begin
+    S1 = rightrotate(e, 6) ^ rightrotate(e, 11) ^ rightrotate(e, 25);
+    ch = (e & f) ^ ((~e) & g);
+    t1 = h + S1 + ch + k[t] + w;
+    S0 = rightrotate(a, 2) ^ rightrotate(a, 13) ^ rightrotate(a, 22);
+    maj = (a & b) ^ (a & c) ^ (b & c);
+    t2 = S0+maj;
+    sha256_op = {t1 + t2, a, b, c, d + t1, e, f, g};
+  end
+endfunction
+\end{lstlisting}
+
+While it is difficult to explain everything that is going on in the function, some important properties should be noted.
 \begin{itemize}
-  \item IDLE: A state the waits for a signal to begin computation
-  \item READ:
-  \item BLOCK:
-  \item COMPUTE:
-  \item WAIT:
+  \item The AND operation is a noninvertible function if the function is not outputting 1. It is not possible to determine the inputs if the output of an AND operation is 0.
+  \item The XOR operation is always noninvertible.
+  \item While the function is complicated it can be realized that there is no nondeterministic processes in this function.
 \end{itemize}
+These properties help SHA-256 to realize properties such as determinism and pre-image resistance. After the SHA-256 hash round is complete, the output of the function will be assigned to $a,b,c,d,e,f,g,h$ and will be used in the next clock cycle. The processs of updating the $a,b,c,d,e,f,g,h$ values for each 32-bit block and then using the same values for the next 32-bit block helps to realize the avalanche effect. A small change in the input message will affect the output of one 32-bit block, which then affects the input/output of the next 32-bit block, and will then change the inputs/outputs for all of the 32-bit blocks down the line.
+
+Once all 64 32-bit blocks are processed in the COMPUTE state, the algorithm will move back to the BLOCK state. If there are more blocks of 512 bits to be processed, then it will take the next block and move back to the COMPUTE state. However, if there are no more blocks to be processed, then the algorithm will move to the WRITE state.
+
+In the WRITE state, the algorithm will write the hash values, $H_0, H_1, H_2, H_3, H_4, H_5, H_6, H_7$ to memory. Since the memory module being used can only write 32 bits to memory per clock cycle, it will take at least 8 clock cycles to write the hash values to memory.
+
+\subsubsection{Finer details of reading/writing from memory}
+
+The SHA-256 uses an external memory module to read in the input message and write out the output hash. This memory module can
+
+\subsubsection{Optimizations}
+
+% TODO discuss pipelining, precomp, word expansion stuff.
+
+
 
 \subsection{Simulation Results}
 
@@ -156,9 +205,14 @@ From here, the state diagram of the SHA-256 can be described.
 
 % TODO: explain what bitcoin hashing is
 
+Bitcoin hashing is a critical aspect of the cryptocurrency's underlying technology, blockchain. In the context of Bitcoin, hashing refers to the process of converting transaction data into a fixed-length alphanumeric string, i.e. a hash value. In order for a block to be accepted as part of the block chain, its hash must be meet a specific criteria. Bitcoin miners must repeatedly hash different combinations of the original transaction data plus a random string of numbers called the "nonce". By changing the nonce, different hash values can be generated and Bitcoin miners will keep trying different nonces until the hash meets the specific criteria. The process of finding the nonce that meets the criteria requires a lot of computational power and since miners compete with each other to see who meets the criteria, speed is also very essential.
+
+In this part of the report, we will investigate the implementation of a Bitcoin hashing algorithm that will attempt to generate multiple hash values at a time for different nonce values. We are not trying to meet any specific criteria for the final hash value, but instead are trying to design a module that will compute many hash values with different nonces very quickly.
+
 \subsection{Algorithm}
 
 % TODO: explain what bitcoin hashing algorithm that was implemented.
+This algorithm will be designed to take in a 640-bit input message. The first 608 bits are reserved for the transaction data and the last 32 bits of the input message are reserved for the nonce.
 
 \subsection{Resource Usage}
 
@@ -169,6 +223,6 @@ From here, the state diagram of the SHA-256 can be described.
 % TODO: Waveform, transcript
 
 
-
+\label{LastPage}
 
 \end{document}
