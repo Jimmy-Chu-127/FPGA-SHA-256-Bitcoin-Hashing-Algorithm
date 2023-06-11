@@ -1,6 +1,6 @@
 module twophase_sha256 (
 	input logic  clk, reset_n, start,
-	input logic[31:0] inh[8],
+	input logic[31:0] inh[8], // initial h0-h7
 	input logic[31:0] message[4],
 	output logic[31:0] outs[8],
 	output logic done);
@@ -8,13 +8,9 @@ module twophase_sha256 (
 // FSM state variables 
 enum logic [1:0] {IDLE, BLOCK2, COMPUTE, DONE} state;
 
-// NOTE : Below mentioned frame work is for reference purpose.
-// Local variables might not be complete and you might have to add more variables
-// or modify these variables. Code below is more as a reference.
 
 // Local variables
 logic [31:0] w[16];
-//logic [63:0] message_size = 640;
 logic [31:0] wt;
 logic [31:0] a, b, c, d, e, f, g, h;
 logic [ 7:0] i;
@@ -37,6 +33,7 @@ parameter int k[0:63] = '{
 assign tstep = (i - 1);
 
 
+// optimized word expansion helper
 function logic [31:0] wtnew;
   logic [31:0] s0, s1;
   
@@ -51,9 +48,6 @@ function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
 	logic [31:0] S1, S0, ch, maj, t1, t2; // internal signals
 	begin
 		S1 = rightrotate(e, 6) ^ rightrotate(e, 11) ^ rightrotate(e, 25);
-		// Student to add remaining code below
-		// Refer to SHA256 discussion slides to get logic for this function
-		// TODO: Jimmothy
 		ch = (e & f) ^ ((~e) & g);
 		t1 = h + S1 + ch + k[t] + w;
 		S0 = rightrotate(a, 2) ^ rightrotate(a, 13) ^ rightrotate(a, 22);
@@ -63,15 +57,6 @@ function logic [255:0] sha256_op(input logic [31:0] a, b, c, d, e, f, g, h, w,
 	end
 endfunction
 
-// Right Rotation Example : right rotate input x by r
-// Lets say input x = 1111 ffff 2222 3333 4444 6666 7777 8888
-// lets say r = 4
-// x >> r  will result in : 0000 1111 ffff 2222 3333 4444 6666 7777 
-// x << (32-r) will result in : 8888 0000 0000 0000 0000 0000 0000 0000
-// final right rotate expression is = (x >> r) | (x << (32-r));
-// (0000 1111 ffff 2222 3333 4444 6666 7777) | (8888 0000 0000 0000 0000 0000 0000 0000)
-// final value after right rotate = 8888 1111 ffff 2222 3333 4444 6666 7777
-// Right rotation function
 function logic [31:0] rightrotate(	input logic [31:0] x,
 												input logic [ 7:0] r);
 	rightrotate = (x >> r) | (x << (32 - r));
@@ -79,26 +64,23 @@ endfunction
 
 
 // SHA-256 FSM 
-// Get a BLOCK from the memory, COMPUTE Hash output using SHA256 function
-// and write back hash value back to memory
-// TODO: Kirtan
 always_ff @(posedge clk, negedge reset_n) begin
 	if (!reset_n) begin
 		state <= IDLE;
 	end 
 	else begin 
 		case (state)
-			// Initialize hash values h0 to h7 and a to h, other variables and memory we, address offset, etc
 			IDLE: begin
 				if(start) begin
 					block_idx <= 0;
-					// BLOCK1
+					// Initialize BLOCK 1 words
 					for(int t = 0; t < 16; t = t + 1) begin
 						if(t < 4) w[t] <= message[t];
 						else if(t == 4) w[t] <= 32'h80000000;
 						else if(t < 15) w[t] <= 32'h00000000;
 						else w[t] <= 32'd640;
 					end
+					// Prepare for computation, intialize a-h
 					a <= inh[0];
 					b <= inh[1];
 					c <= inh[2];
@@ -114,6 +96,7 @@ always_ff @(posedge clk, negedge reset_n) begin
 			end
 
 			BLOCK2: begin
+				// initialize block2 
 				w[0] <= a + inh[0];
 				w[1] <= b + inh[1];
 				w[2] <= c + inh[2];
@@ -133,10 +116,6 @@ always_ff @(posedge clk, negedge reset_n) begin
 				state <= COMPUTE;
 			end
 			
-			// For each block compute hash function
-			// Go back to BLOCK stage after each block hash computation is completed and if
-			// there are still number of message blocks available in memory otherwise
-			// move to WRITE stage
 			COMPUTE: begin
 				// 64 processing rounds steps for 512-bit block 
 				if (i < 65) begin
