@@ -1,0 +1,208 @@
+# Reading pref.tcl
+# do bitcoin_hash_run_msim_rtl_verilog.do
+# if {[file exists rtl_work]} {
+# 	vdel -lib rtl_work -all
+# }
+# vlib rtl_work
+# vmap work rtl_work
+# Model Technology ModelSim - Intel FPGA Edition vmap 2020.1 Lib Mapping Utility 2020.02 Feb 28 2020
+# vmap work rtl_work 
+# Copying C:/Users/chuha/Documents/modelsim_ase/win32aloem/../modelsim.ini to modelsim.ini
+# Modifying modelsim.ini
+# 
+# vlog -sv -work work +incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash {C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:09:57 on Jun 10,2023
+# vlog -reportprogress 300 -sv -work work "+incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash" C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv 
+# -- Compiling module twophase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(3): (vlog-13314) Defaulting port 'inh' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	twophase_sha256
+# End time: 20:09:57 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 2
+# vlog -sv -work work +incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash {C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:09:57 on Jun 10,2023
+# vlog -reportprogress 300 -sv -work work "+incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash" C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv 
+# -- Compiling module onephase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	onephase_sha256
+# End time: 20:09:57 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vlog -sv -work work +incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash {C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv}
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:09:57 on Jun 10,2023
+# vlog -reportprogress 300 -sv -work work "+incdir+C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash" C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv 
+# -- Compiling module bitcoin_hash
+# 
+# Top level modules:
+# 	bitcoin_hash
+# End time: 20:09:57 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:10:30 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv 
+# -- Compiling module bitcoin_hash
+# 
+# Top level modules:
+# 	bitcoin_hash
+# End time: 20:10:30 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:10:30 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv 
+# -- Compiling module onephase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	onephase_sha256
+# End time: 20:10:30 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:10:30 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv 
+# -- Compiling module tb_bitcoin_hash
+# 
+# Top level modules:
+# 	tb_bitcoin_hash
+# End time: 20:10:30 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:10:30 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv 
+# -- Compiling module twophase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(3): (vlog-13314) Defaulting port 'inh' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	twophase_sha256
+# End time: 20:10:31 on Jun 10,2023, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:12:09 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/bitcoin_hash.sv 
+# -- Compiling module bitcoin_hash
+# 
+# Top level modules:
+# 	bitcoin_hash
+# End time: 20:12:09 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:12:09 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv 
+# -- Compiling module onephase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/onephase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	onephase_sha256
+# End time: 20:12:09 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:12:09 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv 
+# -- Compiling module tb_bitcoin_hash
+# 
+# Top level modules:
+# 	tb_bitcoin_hash
+# End time: 20:12:09 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv
+# Model Technology ModelSim - Intel FPGA Edition vlog 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 20:12:09 on Jun 10,2023
+# vlog -reportprogress 300 -work work C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv 
+# -- Compiling module twophase_sha256
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(3): (vlog-13314) Defaulting port 'inh' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# ** Warning: C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/twophase_sha256.sv(4): (vlog-13314) Defaulting port 'message' kind to 'var' rather than 'wire' due to default compile option setting of -svinputport=relaxed.
+# 
+# Top level modules:
+# 	twophase_sha256
+# End time: 20:12:09 on Jun 10,2023, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 2
+vsim work.tb_bitcoin_hash
+# vsim work.tb_bitcoin_hash 
+# Start time: 20:12:35 on Jun 10,2023
+# Loading sv_std.std
+# Loading work.tb_bitcoin_hash
+# Loading work.bitcoin_hash
+# Loading work.onephase_sha256
+# Loading work.twophase_sha256
+add wave sim:/tb_bitcoin_hash/bitcoin_hash_inst/*
+add wave -position insertpoint  \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/num_nonces
+add wave -position insertpoint  \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/k
+# ** UI-Msg: (vish-4014) No objects found matching '/tb_bitcoin_hash/bitcoin_hash_inst/k'.
+add wave -position insertpoint  \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/message \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/message_tail
+add wave -position insertpoint  \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/result_phase1 \
+sim:/tb_bitcoin_hash/bitcoin_hash_inst/result_phase2
+run -all
+# ---------------
+# 19 WORD HEADER:
+# ---------------
+# 01234567
+# 02468ace
+# 048d159c
+# 091a2b38
+# 12345670
+# 2468ace0
+# 48d159c0
+# 91a2b380
+# 23456701
+# 468ace02
+# 8d159c04
+# 1a2b3809
+# 34567012
+# 68ace024
+# d159c048
+# a2b38091
+# 45670123
+# 8ace0246
+# 159c048d
+# ***************************
+# 
+# ---------------------
+# COMPARE HASH RESULTS:
+# ---------------------
+# Correct H0[ 0] = 7106973a	Your H0[ 0] = 7106973a
+# Correct H0[ 1] = 6e66eea7	Your H0[ 1] = 6e66eea7
+# Correct H0[ 2] = fbef64dc	Your H0[ 2] = fbef64dc
+# Correct H0[ 3] = 0888a18c	Your H0[ 3] = 0888a18c
+# Correct H0[ 4] = 9642d5aa	Your H0[ 4] = 9642d5aa
+# Correct H0[ 5] = 2ab6af8b	Your H0[ 5] = 2ab6af8b
+# Correct H0[ 6] = 24259d8c	Your H0[ 6] = 24259d8c
+# Correct H0[ 7] = ffb9bcd9	Your H0[ 7] = ffb9bcd9
+# Correct H0[ 8] = 642138c9	Your H0[ 8] = 642138c9
+# Correct H0[ 9] = 054cafc7	Your H0[ 9] = 054cafc7
+# Correct H0[10] = 78251a17	Your H0[10] = 78251a17
+# Correct H0[11] = af8c8f22	Your H0[11] = af8c8f22
+# Correct H0[12] = d7a79ef8	Your H0[12] = d7a79ef8
+# Correct H0[13] = c7d10c84	Your H0[13] = c7d10c84
+# Correct H0[14] = 9537acfd	Your H0[14] = 9537acfd
+# Correct H0[15] = c1e4c72b	Your H0[15] = c1e4c72b
+# ***************************
+# 
+# CONGRATULATIONS! All your hash results are correct!
+# 
+# Total number of cycles:         244
+# 
+# 
+# ***************************
+# 
+# ** Note: $stop    : C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv(338)
+#    Time: 4930 ps  Iteration: 2  Instance: /tb_bitcoin_hash
+# Break in Module tb_bitcoin_hash at C:/Users/chuha/OneDrive/Documents/GitHub/ECE111_Collaboration/bitcoin_hash/tb_bitcoin_hash.sv line 338
