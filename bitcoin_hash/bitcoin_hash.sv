@@ -9,11 +9,11 @@ module bitcoin_hash (
 parameter num_nonces = 16;
 
 enum logic [4:0] {IDLE, READ, PHASE1, PHASE2, WRITE} state;
-logic [31:0] hout[num_nonces];
-logic [31:0] message[16];
-logic [31:0] message_tail[16][4];
+//logic [31:0] hout[num_nonces];
+logic [31:0] message[16]; 
+logic [31:0] message_tail[num_nonces][4];
 logic [31:0] result_phase1[8];
-logic [31:0] result_phase2[16][8];
+logic [31:0] result_phase2[num_nonces][8];
 
 logic        cur_we;
 logic [15:0] cur_addr;
@@ -26,11 +26,11 @@ assign mem_we = cur_we;
 assign mem_write_data = cur_write_data;
 
 logic 		 rstn_phase1 = 1;
-logic [15:0] rstn_phase2 = 16'hffff;
+logic [num_nonces-1:0] rstn_phase2 = ~0;
 logic 		 start_phase1 = 0;
-logic [15:0] start_phase2 = 0;
+logic [num_nonces-1:0] start_phase2 = 0;
 logic 		 done_phase1;
-logic [15:0] done_phase2;
+logic [num_nonces-1:0] done_phase2;
 
 // SHA256 K constants
 parameter int k[64] = '{
@@ -48,7 +48,7 @@ onephase_sha256 phase1(.clk, .reset_n(rstn_phase1), .start(start_phase1), .messa
 
 genvar i;
 generate
-	for(i = 0; i < 16; i = i + 1) begin: phase2_loop
+	for(i = 0; i < num_nonces; i = i + 1) begin: phase2_loop
 		twophase_sha256 phase2(.clk, .reset_n(rstn_phase2[i]), .start(start_phase2[i]), .inh(result_phase1), .outs(result_phase2[i]), .message(message_tail[i]), .done(done_phase2[i]));
 	end : phase2_loop
 endgenerate
@@ -90,7 +90,7 @@ always_ff@(posedge clk, negedge reset_n) begin
 					
 				if(offset == 19) begin
 					rstn_phase1 <= 'b1;
-					rstn_phase2 <= 16'hffff;
+					rstn_phase2 <= ~0;
 					start_phase1 <= 'b1;
 					state <= PHASE1;
 				end
@@ -102,7 +102,7 @@ always_ff@(posedge clk, negedge reset_n) begin
 			
 			PHASE1: begin
 				if(done_phase1) begin
-					start_phase2 <= 16'hffff;
+					start_phase2 <= ~0;
 					state <= PHASE2;
 				end
 				start_phase1 <= 0;

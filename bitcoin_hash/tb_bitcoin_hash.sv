@@ -238,6 +238,7 @@ begin
         h7[n] = h7[n] + h;
     end
 
+	 
 // 3. COMPUTE SECOND HASH FOR EACH NONCE
 
     for (n = 0; n < NUM_NONCES; n++) begin
