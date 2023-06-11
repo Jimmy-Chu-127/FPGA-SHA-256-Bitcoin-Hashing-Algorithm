@@ -6,7 +6,7 @@ module twophase_sha256 (
 	output logic done);
 
 // FSM state variables 
-enum logic [2:0] {IDLE, READ, PREBLOCK, BLOCK, PRECOMP, COMPUTE, WRITE, DONE} state;
+enum logic [1:0] {IDLE, BLOCK2, COMPUTE, DONE} state;
 
 // NOTE : Below mentioned frame work is for reference purpose.
 // Local variables might not be complete and you might have to add more variables
@@ -17,9 +17,8 @@ logic [31:0] w[16];
 //logic [63:0] message_size = 640;
 logic [31:0] wt;
 logic [31:0] a, b, c, d, e, f, g, h;
-logic [31:0] h0, h1, h2, h3, h4, h5, h6, h7;
-logic [ 7:0] i, j;
-logic [ 7:0] num_blocks, block_idx;
+logic [ 7:0] i;
+logic block_idx;
 logic [ 7:0] tstep;
 
 
@@ -35,7 +34,6 @@ parameter int k[0:63] = '{
 	32'h748f82ee,32'h78a5636f,32'h84c87814,32'h8cc70208,32'h90befffa,32'ha4506ceb,32'hbef9a3f7,32'hc67178f2
 };
 
-assign num_blocks = 2;
 assign tstep = (i - 1);
 
 
@@ -93,70 +91,48 @@ always_ff @(posedge clk, negedge reset_n) begin
 			// Initialize hash values h0 to h7 and a to h, other variables and memory we, address offset, etc
 			IDLE: begin
 				if(start) begin
-					i <= 0; j <= 0;
 					block_idx <= 0;
-					state <= BLOCK;
-					h0 <= inh[0];
-					h1 <= inh[1];
-					h2 <= inh[2];
-					h3 <= inh[3];
-					h4 <= inh[4];
-					h5 <= inh[5];
-					h6 <= inh[6];
-					h7 <= inh[7];
-				end
-			end
-			
-			// SHA-256 FSM 
-			// Get a BLOCK from the memory, COMPUTE Hash output using SHA256 function    
-			// and write back hash value back to memory
-			BLOCK: begin
-				// Fetch message in 512-bit block size
-				// For each of 512-bit block initiate hash value computation
-
-				if(block_idx == 0) begin
+					// BLOCK1
 					for(int t = 0; t < 16; t = t + 1) begin
 						if(t < 4) w[t] <= message[t];
 						else if(t == 4) w[t] <= 32'h80000000;
 						else if(t < 15) w[t] <= 32'h00000000;
 						else w[t] <= 32'd640;
 					end
-					{a, b, c, d, e, f, g, h} <= {h0, h1, h2, h3, h4, h5, h6, h7};
+					a <= inh[0];
+					b <= inh[1];
+					c <= inh[2];
+					d <= inh[3];
+					e <= inh[4];
+					f <= inh[5];
+					g <= inh[6];
+					h <= inh[7];
+					wt <= message[0]; // wt = w[0]
+					i <= 1;
+					state <= COMPUTE;
 				end
-				else begin
-					w[0] <= h0;
-					w[1] <= h1;
-					w[2] <= h2;
-					w[3] <= h3;
-					w[4] <= h4;
-					w[5] <= h5;
-					w[6] <= h6;
-					w[7] <= h7;
-					w[8] <= 32'h80000000;
-					for(int t = 9; t < 15; t = t + 1)
-						w[t] <= 32'h00000000;
-					w[15] <= 32'd256;
-					h0 <= 32'h6a09e667;
-					h1 <= 32'hbb67ae85;
-					h2 <= 32'h3c6ef372;
-					h3 <= 32'ha54ff53a;
-					h4 <= 32'h510e527f;
-					h5 <= 32'h9b05688c;
-					h6 <= 32'h1f83d9ab;
-					h7 <= 32'h5be0cd19;
-					{a, b, c, d, e, f, g, h} <= {32'h6a09e667, 32'hbb67ae85, 32'h3c6ef372, 32'ha54ff53a,
-								32'h510e527f, 32'h9b05688c, 32'h1f83d9ab, 32'h5be0cd19};
-				end
-				state <= PRECOMP;
-				
 			end
-			
-			PRECOMP: begin
-				wt <= w[0];
+
+			BLOCK2: begin
+				w[0] <= a + inh[0];
+				w[1] <= b + inh[1];
+				w[2] <= c + inh[2];
+				w[3] <= d + inh[3];
+				w[4] <= e + inh[4];
+				w[5] <= f + inh[5];
+				w[6] <= g + inh[6];
+				w[7] <= h + inh[7];
+				w[8] <= 32'h80000000;
+				for(int t = 9; t < 15; t = t + 1)
+					w[t] <= 32'h00000000;
+				w[15] <= 32'd256;
+				{a, b, c, d, e, f, g, h} <= {32'h6a09e667, 32'hbb67ae85, 32'h3c6ef372, 32'ha54ff53a,
+							32'h510e527f, 32'h9b05688c, 32'h1f83d9ab, 32'h5be0cd19};
+				wt <= a + inh[0]; // wt = w[0]
 				i <= 1;
 				state <= COMPUTE;
 			end
-
+			
 			// For each block compute hash function
 			// Go back to BLOCK stage after each block hash computation is completed and if
 			// there are still number of message blocks available in memory otherwise
@@ -174,28 +150,17 @@ always_ff @(posedge clk, negedge reset_n) begin
 					i <= i + 1;
 				end
 				else begin
-					h0 <= h0 + a;
-					h1 <= h1 + b;
-					h2 <= h2 + c;
-					h3 <= h3 + d;
-					h4 <= h4 + e;
-					h5 <= h5 + f;
-					h6 <= h6 + g;
-					h7 <= h7 + h;
 					i<=0;
-					block_idx <= block_idx + 1;
-					if(block_idx == num_blocks - 1) state <= WRITE;
-					else state <= BLOCK;
+					block_idx <= 1; // block_idx + 1
+					if(block_idx == 1) state <= DONE;
+					else state <= BLOCK2;
 				end
 			end
-			WRITE: begin
-				outs = '{h0, h1, h2, h3, h4, h5, h6, h7};
-				state <= DONE;
-			end
 			DONE: begin
+				outs = '{a + 32'h6a09e667, b + 32'h6a09e667, c + 32'h3c6ef372, d + 32'ha54ff53a, 
+					e + 32'h510e527f, f + 32'h9b05688c, g + 32'h1f83d9ab, h + 32'h5be0cd19};
 				state <= DONE;
 			end
-
 		endcase
 	end
 end

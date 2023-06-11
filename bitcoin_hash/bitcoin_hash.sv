@@ -73,7 +73,7 @@ always_ff@(posedge clk, negedge reset_n) begin
 					state <= READ;
 					rstn_phase1 <= 0;
 					rstn_phase2 <= 0;
-					for(int k = 0; k < 16; k++) begin
+					for(int k = 0; k < num_nonces; k++) begin
 						message_tail[k][3] <= k; // nonce
 					end
 				end
@@ -83,7 +83,7 @@ always_ff@(posedge clk, negedge reset_n) begin
 				if (offset <= 16)
 					message[offset-1] <= mem_read_data;
 				else if(offset <= 19) begin // 4 cycles pipelineable 
-					for(int k = 0; k < 16; k++) begin
+					for(int k = 0; k < num_nonces; k++) begin
 						message_tail[k][offset-17] <= mem_read_data;
 					end
 				end
