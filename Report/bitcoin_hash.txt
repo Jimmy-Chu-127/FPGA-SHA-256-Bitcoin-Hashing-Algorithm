@@ -45,7 +45,7 @@
 #
 # CONGRATULATIONS! All your hash results are correct!
 #
-# Total number of cycles:         248
+# Total number of cycles:         244
 #
 #
 # ***************************

@@ -1,0 +1,187 @@
+@charset "UTF-8";
+/* Quartus Prime start screen style sheet (based on Bootstrap 3) */
+
+/* for use in Quartus Prime */
+@font-face {
+    font-family: "Intel Clear";
+	src: url(qrc:/fonts/intel-clear-latin.woff); 
+	font-weight:normal;
+}
+
+/* for testing on desktop 
+@font-face {
+    font-family: "Intel Clear";
+	src: url(../fonts/intel-clear-latin.woff);
+	font-weight:normal;
+}
+@font-face {
+	font-family: "Intel Clear";
+	src: url(../fonts/intel-clear-latin-bold.woff);
+	font-weight: bold;
+}
+*/
+
+html,body {
+    height: 100%;
+	overflow:visible;
+}
+body { 
+	/* background-color:#F3F3F3; */
+	background-color:#0071C5;		/* Intel blue */
+	font-family: "Intel Clear", "Myriad Pro", Arial, Helvetica, san-serif;
+}
+
+.footer {
+	background-color: #003C71;
+	position:fixed;
+	bottom:0;
+	width:100%;
+	border-top: thin solid #FFF;
+}
+#content {
+	overflow:visible;
+}
+#spacer {
+	height:200px;
+	display:inline-block;
+}
+hr {
+    border-top: 1px solid #00AEEF;
+}
+
+#main-icons {
+	margin-top:5px;	
+}
+#main-icons span {
+	color: #003C71;	
+}
+#main-icons .btn-default {
+	background-color:#FFF;
+	border: none;
+	margin:8px;
+	min-width:200px;
+	border-radius:0px;
+}
+#main-icons .btn-default:hover, .btn-default:active {
+	background-color:#F3F3F3;
+}
+
+#sub-icons {
+	margin-top:5px;	
+}
+#sub-icons span {
+	color: #003C71;	
+}
+#sub-icons .btn-default {
+	background-color:#FFFFFF;
+	border: none;
+	margin:8px;
+	min-width:115px;
+	border-radius:0px;
+}
+
+#sub-icons .btn-default:hover, .btn-default:active {
+	background-color:#F3F3F3;
+}
+
+.title {
+	font-family: "Intel Clear", "Myriad Pro", Arial, Helvetica, san-serif;   font-size:16pt; 
+	font-weight:bold; 
+	color: #F3F3F3;
+}
+.mru-list { 
+    list-style-image: url(../img/afcq_new_prj_wiz.png);
+    list-style-position: inside;
+	color:#F3F3F3;
+}
+.project-name {  
+   font-weight: bold; 
+}
+.recent-project { 
+    font-size: 8pt; 
+}
+.action {
+    cursor: pointer;
+    font-size: 10pt; 
+    vertical-align: middle;
+}
+.action:hover {
+	/* background: #004987; */
+    background: #00AEEF; 
+}
+.center {
+    text-align: center;
+}
+#logo-wide {
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    background-image: url('../img/sscq-intel-white.png');
+	background-size:contain;
+	height:65px;
+}
+
+.thumbnail-height {
+    min-height: 50px;
+	text-align:center;
+}
+a.thumbnail:hover {
+    border-color: #0088cc;
+    text-decoration: none;
+    background-color: #F2FBFF;
+    -webkit-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+     -moz-box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+          box-shadow: 0 1px 4px rgba(0, 105, 214, 0.25);
+}
+
+#footer-checkbox {
+	margin-left:20px;	
+}
+.checkbox-font {
+	font-family: "Intel Clear", "Myriad Pro", Arial, Helvetica, san-serif; ; 
+    font-size: 10pt;
+	font-weight: normal;
+	color:#fff;
+}
+
+.checkbox {
+	color:#fff;
+}
+
+@media  (max-width:350px)  {
+#logo-wide {
+	clear:both;
+	display:block;
+	background-position: bottom center;
+}
+#footer-checkbox {
+	width:100%;	
+}
+}
+
+
+/* fix the footer bar on smaller windows portrait */
+@media  (max-height: 800px) and (max-width:450px)  {
+	
+.footer {
+	position:relative;
+	height:300px;
+}
+#spacer {
+	height:10px;
+}
+}
+
+
+/* fix the footer bar on short fat windows */
+@media  (max-height: 400px)  {
+#spacer {
+	height:10px;
+}
+.footer {
+	position:relative;
+	height:300px;
+}
+}
+
+
+

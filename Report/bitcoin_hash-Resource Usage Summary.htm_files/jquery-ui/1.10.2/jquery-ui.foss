@@ -1,0 +1,12 @@
+[foss]
+name = jQuery UI
+version = 1.10.2
+description = UI library built on top of jQuery
+case = ""
+source = true
+binary = false
+modified = false
+usage = ""
+license_type = MIT
+license_url = https://github.com/jquery/jquery-ui/blob/master/MIT-LICENSE.txt
+download_url = http://jqueryui.com/
