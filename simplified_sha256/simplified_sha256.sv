@@ -1,10 +1,10 @@
 module simplified_sha256 #(parameter integer NUM_OF_WORDS = 20)(
-	input logic  clk, reset_n, start,
-	input logic  [15:0] message_addr, output_addr,
+	input  logic clk, reset_n, start,
+	input  logic [15:0] message_addr, output_addr,
 	output logic done, mem_clk, mem_we,
 	output logic [15:0] mem_addr,
 	output logic [31:0] mem_write_data,
-	input logic [31:0] mem_read_data);
+	input  logic [31:0] mem_read_data);
 
 // FSM state variables 
 enum logic [2:0] {IDLE, READ, BLOCK, PRECOMP, COMPUTE, WRITE} state;
@@ -26,7 +26,6 @@ logic [ 7:0] num_blocks, block_idx;
 logic        cur_we;
 logic [15:0] cur_addr;
 logic [31:0] cur_write_data;
-//logic [511:0] memory_block;
 logic [ 7:0] tstep;
 
 logic   [31:0] s1, s0;     //Isn't this done locally already?
