@@ -189,7 +189,7 @@ In the \verb|WRITE| state, the algorithm will write the hash values, $H_0, H_1, 
 \iffalse
 \subsection{Finer details of reading/writing from memory}
 
-The SHA-256 uses an external memory module to read in the input message and write out the output hash. At every positive edge of clock, this memory module reads out the 
+The SHA-256 uses an external memory module to read in the input message and write out the output hash. At every positive edge of clock, this memory module reads out the
 
 %TODO: do we want to do write this section?
 \fi
@@ -201,7 +201,7 @@ As we will see in the next section, optimizing the SHA-256 algorithm for speed i
 We optimized the \verb|simplified_sha256| by changing the way we assign message words and perform word expansion. First, instead of using an if statement and assigning one word per cycle to \verb|w|, we used a for-loop because it can be done in parallel. This saved about 15 cycles.
 \lstinputlisting[linerange={171-184}, style=verilog-style]{simplified_sha256.sv}
 
-We also computed the word expansion in parallel with the \verb|COMPUTE| state, which allowed us to reduce the \verb|w| register from length 64 to length 16. This saved thousands of ALUTS. 
+We also computed the word expansion in parallel with the \verb|COMPUTE| state, which allowed us to reduce the \verb|w| register from length 64 to length 16. This saved thousands of ALUTS.
 \lstinputlisting[linerange={201-212}, style=verilog-style]{simplified_sha256.sv}
 
 
@@ -224,15 +224,15 @@ In this part of the report, we will investigate the implementation of a Bitcoin 
 % explain what bitcoin hashing algorithm that was implemented.
 The goal of this algorithm is to compute 16 hash values for 16 different nonce values. Since speed is highly important in the context of Bitcoin mining, we have designed our implementation to computes these hashes as fast as possible.
 
-This algorithm is designed to take in a 640-bit input message (read in from an external memory module similar to the SHA-256. The first 608 bits are reserved for the transaction data and the last 32 bits of the input message are reserved for the nonce. The hash function for the Bitcoin hashing is realized with the SHA-256 function from earlier. The first block of 512 bits contains the first 16 words of the transaction data. The second block contains the last 3 words of the transaction data, the word containing the nonce, and then padding and input message size. These two blocks are then processed by the SHA-256 algorithm again. 
+This algorithm is designed to take in a 640-bit input message (read in from an external memory module similar to the SHA-256. The first 608 bits are reserved for the transaction data and the last 32 bits of the input message are reserved for the nonce. The hash function for the Bitcoin hashing is realized with the SHA-256 function from earlier. The first block of 512 bits contains the first 16 words of the transaction data. The second block contains the last 3 words of the transaction data, the word containing the nonce, and then padding and input message size. These two blocks are then processed by the SHA-256 algorithm again.
 
 We have designed one module to process the first 512-bit block that only contains transaction data. The output hash of this module then helps to initialize the initial hash values of the SHA-256 module that processes the second block. Since we want to compute the hash values for inputs with 16 different nonce values, we ended up using 16 SHA-256 instances running in parallel to compute all 16 nonce values at once.
 
 After output hashes are computed for both blocks of all 16 nonce values, these output hashes are then used to form a third 512-bit block for each nonce value. The first 256 bits of this block contains the hash value of the respective hash output from the first and second blocks. The last 256 bits contain padding and input message size (256). This third block is then fed into one last SHA-256 \verb|COMPUTE| state and uses the same initial hash as the one used to process the first 512-bit block.
 
-To implement this algorithm we used multiple modules. We created a module called \verb|onephase_sha256.sv| that implements a SHA-256 algorithm that only goes through one \verb|COMPUTE| state, and another module called \verb|twophase_sha256.sv| that implements a SHA-256 algorithm that goes through the \verb|COMPUTE| state twice. Finally, a higher level module called \verb|bitcoin_hash.sv| is created to instantiate 1 one phase SHA-256 and 16 two phase SHA-256. Wires are used to connect the output hash of the one phase SHA-256 instance to the 16 instances of the two phase SHA-256. 
+To implement this algorithm we used multiple modules. We created a module called \verb|onephase_sha256.sv| that implements a SHA-256 algorithm that only goes through one \verb|COMPUTE| state, and another module called \verb|twophase_sha256.sv| that implements a SHA-256 algorithm that goes through the \verb|COMPUTE| state twice. Finally, a higher level module called \verb|bitcoin_hash.sv| is created to instantiate 1 one phase SHA-256 and 16 two phase SHA-256. Wires are used to connect the output hash of the one phase SHA-256 instance to the 16 instances of the two phase SHA-256.
 
-The top-level module, \verb|bitcoin_hash.sv| handles the reading in and writing out data. This makes it so the read and write states of the one and two phase SHA-256 modules aren't necessarily required. 
+The top-level module, \verb|bitcoin_hash.sv| handles the reading in and writing out data. This makes it so the read and write states of the one and two phase SHA-256 modules aren't necessarily required.
 
 \subsection{Optimization}
 
